@@ -1,10 +1,10 @@
 --[[
     🦖 DINO HUB 🦖
-    Key: teste
+    Key: dino-2020
 ]]
 
 -- ==================== CONFIGURAÇÕES ====================
-local KEY_SISTEMA = "teste"
+local KEY_SISTEMA = "2020"
 local COR_NEON = Color3.fromRGB(0, 255, 120)
 local COR_FUNDO = Color3.fromRGB(15, 15, 15)
 local COR_FUNDO_2 = Color3.fromRGB(25, 30, 25)
@@ -649,7 +649,243 @@ CriarBotao(extrasScroll, "🖤 Auto Kokusen (Spam Tool)", function(ativo)
         if kokusenConn then task.cancel(kokusenConn); kokusenConn = nil end
     end
 end)
+loadstring(game:HttpGet("https://raw.githubusercontent.com/aetherhubb-lang/meu-hub/main/Dino%20hub"))()
 
+task.wait(3)
+
+loadstring([[
+--[[
+    ⚡ AUTO BLACK FLASH CHAIN ⚡
+    Encadeia Black Flash automaticamente
+]]
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+local LP = Players.LocalPlayer
+
+local COR_NEON = Color3.fromRGB(0, 255, 120)
+local COR_FUNDO = Color3.fromRGB(15, 15, 15)
+local COR_FUNDO_2 = Color3.fromRGB(25, 30, 25)
+
+-- Localiza o Hub
+local hubGui, scrollFrame = nil, nil
+for _, gui in ipairs(CoreGui:GetChildren()) do
+    if gui.Name == "DinoHub" then
+        hubGui = gui
+        for _, desc in ipairs(gui:GetDescendants()) do
+            if desc:IsA("ScrollingFrame") then scrollFrame = desc; break end
+        end
+        break
+    end
+end
+
+if not hubGui or not scrollFrame then
+    warn("❌ Dino Hub não encontrado!")
+    return
+end
+
+-- ==================== AUTO BLACK FLASH CHAIN ====================
+local bfAtivo, loopBF = false, nil
+local bfRange = 20
+local bfChainDelay = 0.12
+
+-- Acha alvo mais próximo
+local function AcharAlvo(range)
+    local char = LP.Character
+    local myRoot = char and char:FindFirstChild("HumanoidRootPart")
+    if not myRoot then return nil end
+
+    local closest, dist = nil, range or bfRange
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LP and p.Character then
+            local hrp = p.Character:FindFirstChild("HumanoidRootPart")
+            local hum = p.Character:FindFirstChildOfClass("Humanoid")
+            if hrp and hum and hum.Health > 0 then
+                local d = (hrp.Position - myRoot.Position).Magnitude
+                if d < dist then dist = d; closest = p end
+            end
+        end
+    end
+    return closest
+end
+
+-- Dispara teclas
+local function PressKey(key, hold)
+    pcall(function()
+        local vim = game:GetService("VirtualInputManager")
+        vim:SendKeyEvent(true, key, false, game)
+        task.wait(hold or 0.03)
+        vim:SendKeyEvent(false, key, false, game)
+    end)
+end
+
+-- Click do mouse
+local function ClickMouse()
+    pcall(function()
+        local vim = game:GetService("VirtualInputManager")
+        vim:SendMouseButtonEvent(0, 0, 0, true, game, 1)
+        task.wait(0.02)
+        vim:SendMouseButtonEvent(0, 0, 0, false, game, 1)
+    end)
+end
+
+-- Força estado de Black Flash via Attributes
+local function AtivarBlackFlash()
+    local char = LP.Character
+    if not char then return end
+    pcall(function()
+        char:SetAttribute("BlackFlash", true)
+        char:SetAttribute("Kokusen", true)
+        char:SetAttribute("AutoBlackFlash", true)
+        char:SetAttribute("Chain", true)
+
+        local stats = char:FindFirstChild("Stats") or char:FindFirstChild("Values") or char:FindFirstChild("Data")
+        if stats then
+            for _, name in ipairs({"BlackFlash", "Kokusen", "Chain", "Combo"}) do
+                local v = stats:FindFirstChild(name)
+                if v then pcall(function() v.Value = true end) end
+            end
+        end
+    end)
+end
+
+-- Procura RemoteEvent pra forçar Black Flash
+local function AcharRemoteBlackFlash()
+    local remotes = {}
+    pcall(function()
+        for _, obj in ipairs(game:GetDescendants()) do
+            if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
+                local n = string.lower(obj.Name)
+                if string.find(n, "black") or string.find(n, "flash")
+                or string.find(n, "kokusen") or string.find(n, "attack")
+                or string.find(n, "m1") or string.find(n, "combat") then
+                    table.insert(remotes, obj)
+                end
+            end
+        end
+    end)
+    return remotes
+end
+
+local cachedRemotes = nil
+
+-- Executa 1 combo de Black Flash
+local function ExecutarBF(alvo)
+    if not alvo or not alvo.Character then return end
+    local char = LP.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+
+    local tRoot = alvo.Character:FindFirstChild("HumanoidRootPart")
+    local tHum = alvo.Character:FindFirstChildOfClass("Humanoid")
+    if not tRoot or not tHum or tHum.Health <= 0 then return end
+
+    local dist = (tRoot.Position - root.Position).Magnitude
+    if dist > bfRange then return end
+
+    -- Olha pro alvo
+    root.CFrame = CFrame.new(root.Position, tRoot.Position)
+
+    -- Ativa estado
+    AtivarBlackFlash()
+
+    -- Tenta RemoteEvent (se existir)
+    if not cachedRemotes then cachedRemotes = AcharRemoteBlackFlash() end
+    for _, r in ipairs(cachedRemotes or {}) do
+        pcall(function()
+            if r:IsA("RemoteEvent") then
+                r:FireServer()
+            elseif r:IsA("RemoteFunction") then
+                r:InvokeServer()
+            end
+        end)
+    end
+
+    -- M1 (click)
+    ClickMouse()
+
+    -- Teclas das skills de Black Flash
+    PressKey(Enum.KeyCode.R)
+    task.wait(0.04)
+    PressKey(Enum.KeyCode.F)
+    task.wait(0.04)
+    PressKey(Enum.KeyCode.Q)
+
+    -- Skills numeradas (encadeamento)
+    PressKey(Enum.KeyCode.One)
+    task.wait(0.03)
+    PressKey(Enum.KeyCode.Two)
+    task.wait(0.03)
+    PressKey(Enum.KeyCode.Three)
+    task.wait(0.03)
+    PressKey(Enum.KeyCode.Four)
+end
+
+-- Loop principal
+local function IniciarBF()
+    bfAtivo = true
+    cachedRemotes = AcharRemoteBlackFlash()
+    loopBF = task.spawn(function()
+        while bfAtivo do
+            local alvo = AcharAlvo()
+            if alvo then
+                pcall(function() ExecutarBF(alvo) end)
+            end
+            task.wait(bfChainDelay)
+        end
+    end)
+    print("⚡ Auto Black Flash Chain ATIVADO")
+end
+
+local function PararBF()
+    bfAtivo = false
+    if loopBF then task.cancel(loopBF); loopBF = nil end
+    print("⚡ Auto Black Flash Chain DESATIVADO")
+end
+
+-- ==================== BOTÃO ====================
+local btnBF = Instance.new("TextButton")
+btnBF.Size = UDim2.new(1, -8, 0, 40)
+btnBF.BackgroundColor3 = COR_FUNDO_2
+btnBF.Text = "  ⚡ Auto Black Flash Chain"
+btnBF.TextColor3 = Color3.fromRGB(220, 220, 220)
+btnBF.Font = Enum.Font.GothamMedium
+btnBF.TextSize = 13
+btnBF.TextXAlignment = Enum.TextXAlignment.Left
+btnBF.BorderSizePixel = 0
+btnBF.AutoButtonColor = false
+btnBF.Parent = scrollFrame
+
+local bc = Instance.new("UICorner") bc.CornerRadius = UDim.new(0, 10) bc.Parent = btnBF
+local bs = Instance.new("UIStroke") bs.Color = COR_NEON bs.Thickness = 1 bs.Transparency = 0.5 bs.Parent = btnBF
+
+local ativo = false
+btnBF.MouseEnter:Connect(function()
+    if not ativo then TweenService:Create(btnBF, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 45, 35)}):Play() end
+end)
+btnBF.MouseLeave:Connect(function()
+    if not ativo then TweenService:Create(btnBF, TweenInfo.new(0.2), {BackgroundColor3 = COR_FUNDO_2}):Play() end
+end)
+
+btnBF.MouseButton1Click:Connect(function()
+    ativo = not ativo
+    if ativo then
+        btnBF.BackgroundColor3 = COR_NEON
+        btnBF.TextColor3 = COR_FUNDO
+        btnBF.Text = "  ● Auto Black Flash Chain"
+        IniciarBF()
+    else
+        btnBF.BackgroundColor3 = COR_FUNDO_2
+        btnBF.TextColor3 = Color3.fromRGB(220, 220, 220)
+        btnBF.Text = "  ⚡ Auto Black Flash Chain"
+        PararBF()
+    end
+end)
+
+print("⚡ Auto Black Flash Chain carregado!")
+]])()
 -- ==================== FINALIZAÇÃO ====================
 print("🦖 DINO HUB carregado com sucesso!")
-print("✅ Key: teste")
+print("✅ Key: dino-2020")
