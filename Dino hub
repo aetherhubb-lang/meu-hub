@@ -1,6 +1,5 @@
 --[[
     🦖 DINO HUB 🦖
-    Compatível com Delta Executor
     Key: teste
 ]]
 
@@ -40,14 +39,6 @@ local function VerificarKey()
     stroke.Color = COR_NEON
     stroke.Thickness = 2
     stroke.Parent = frame
-
-    local gradient = Instance.new("UIGradient")
-    gradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, COR_NEON),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(180, 255, 200)),
-        ColorSequenceKeypoint.new(1, COR_NEON),
-    })
-    gradient.Parent = stroke
 
     local title = Instance.new("TextLabel")
     title.Size = UDim2.new(1, 0, 0, 45)
@@ -122,10 +113,8 @@ local function VerificarKey()
             btn.BackgroundColor3 = COR_NEON
         end
     end)
-
     repeat task.wait() until ok
 end
-
 VerificarKey()-- ==================== HUB UI ====================
 local hubGui = Instance.new("ScreenGui")
 hubGui.Name = "DinoHub"
@@ -150,14 +139,6 @@ local mainStroke = Instance.new("UIStroke")
 mainStroke.Color = COR_NEON
 mainStroke.Thickness = 2
 mainStroke.Parent = main
-
-local mainGradient = Instance.new("UIGradient")
-mainGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, COR_NEON),
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(150, 255, 180)),
-    ColorSequenceKeypoint.new(1, COR_NEON),
-})
-mainGradient.Parent = mainStroke
 
 -- Barra Superior
 local topBar = Instance.new("Frame")
@@ -200,10 +181,7 @@ minBtn.Font = Enum.Font.GothamBold
 minBtn.TextSize = 22
 minBtn.BorderSizePixel = 0
 minBtn.Parent = topBar
-
-local minCorner = Instance.new("UICorner")
-minCorner.CornerRadius = UDim.new(0, 8)
-minCorner.Parent = minBtn
+local minCorner = Instance.new("UICorner") minCorner.CornerRadius = UDim.new(0, 8) minCorner.Parent = minBtn
 
 -- Botão Cadeado
 local lockBtn = Instance.new("TextButton")
@@ -216,10 +194,7 @@ lockBtn.Font = Enum.Font.GothamBold
 lockBtn.TextSize = 16
 lockBtn.BorderSizePixel = 0
 lockBtn.Parent = topBar
-
-local lockCorner = Instance.new("UICorner")
-lockCorner.CornerRadius = UDim.new(0, 8)
-lockCorner.Parent = lockBtn
+local lockCorner = Instance.new("UICorner") lockCorner.CornerRadius = UDim.new(0, 8) lockCorner.Parent = lockBtn
 
 -- Container de botões
 local scroll = Instance.new("ScrollingFrame")
@@ -252,26 +227,12 @@ local function CriarBotao(nome, callback)
     btn.AutoButtonColor = false
     btn.Parent = scroll
 
-    local c = Instance.new("UICorner")
-    c.CornerRadius = UDim.new(0, 10)
-    c.Parent = btn
-
-    local s = Instance.new("UIStroke")
-    s.Color = COR_NEON
-    s.Thickness = 1
-    s.Transparency = 0.5
-    s.Parent = btn
+    local c = Instance.new("UICorner") c.CornerRadius = UDim.new(0, 10) c.Parent = btn
+    local s = Instance.new("UIStroke") s.Color = COR_NEON s.Thickness = 1 s.Transparency = 0.5 s.Parent = btn
 
     local ativo = false
-
-    btn.MouseEnter:Connect(function()
-        TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 45, 35)}):Play()
-    end)
-    btn.MouseLeave:Connect(function()
-        if not ativo then
-            TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = COR_FUNDO_2}):Play()
-        end
-    end)
+    btn.MouseEnter:Connect(function() TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 45, 35)}):Play() end)
+    btn.MouseLeave:Connect(function() if not ativo then TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = COR_FUNDO_2}):Play() end end)
 
     btn.MouseButton1Click:Connect(function()
         ativo = not ativo
@@ -286,55 +247,36 @@ local function CriarBotao(nome, callback)
         end
         if callback then callback(ativo) end
     end)
-
     return btn
 end
 
--- ==================== SISTEMA MINIMIZAR ====================
-local minimizado = false
+-- Minimizar
 local minTab = nil
-
 minBtn.MouseButton1Click:Connect(function()
-    minimizado = not minimizado
-    if minimizado then
-        main.Visible = false
-        minTab = Instance.new("TextButton")
-        minTab.Size = UDim2.new(0, 50, 0, 50)
-        minTab.Position = UDim2.new(0, 30, 0.5, -25)
-        minTab.BackgroundColor3 = COR_FUNDO
-        minTab.Text = "+"
-        minTab.TextColor3 = COR_NEON
-        minTab.Font = Enum.Font.GothamBold
-        minTab.TextSize = 28
-        minTab.BorderSizePixel = 0
-        minTab.Active = true
-        minTab.Draggable = true
-        minTab.Parent = hubGui
-
-        local mc = Instance.new("UICorner")
-        mc.CornerRadius = UDim.new(0, 12)
-        mc.Parent = minTab
-
-        local ms = Instance.new("UIStroke")
-        ms.Color = COR_NEON
-        ms.Thickness = 2
-        ms.Parent = minTab
-
-        minTab.MouseButton1Click:Connect(function()
-            main.Visible = true
-            minTab:Destroy()
-            minTab = nil
-            minimizado = false
-        end)
-    end
+    main.Visible = false
+    minTab = Instance.new("TextButton")
+    minTab.Size = UDim2.new(0, 50, 0, 50)
+    minTab.Position = UDim2.new(0, 30, 0.5, -25)
+    minTab.BackgroundColor3 = COR_FUNDO
+    minTab.Text = "+"
+    minTab.TextColor3 = COR_NEON
+    minTab.Font = Enum.Font.GothamBold
+    minTab.TextSize = 28
+    minTab.BorderSizePixel = 0
+    minTab.Active = true
+    minTab.Draggable = true
+    minTab.Parent = hubGui
+    local mc = Instance.new("UICorner") mc.CornerRadius = UDim.new(0, 12) mc.Parent = minTab
+    local ms = Instance.new("UIStroke") ms.Color = COR_NEON ms.Thickness = 2 ms.Parent = minTab
+    minTab.MouseButton1Click:Connect(function()
+        main.Visible = true
+        minTab:Destroy()
+    end)
 end)
 
--- ==================== SISTEMA CADEADO ====================
-local trancado = false
-
+-- Cadeado
 lockBtn.MouseButton1Click:Connect(function()
-    trancado = not trancado
-    if trancado then
+    if main.Draggable then
         main.Draggable = false
         lockBtn.Text = "🔒"
     else
@@ -344,13 +286,6 @@ lockBtn.MouseButton1Click:Connect(function()
 end)-- ==================== GOJO 0.2 ====================
 local gojoAtivo = false
 local gojoConn = nil
-
-local function PararGojo()
-    if gojoConn then
-        gojoConn:Disconnect()
-        gojoConn = nil
-    end
-end
 
 CriarBotao("Gojo 0.2 (Teleport Kill)", function(ativo)
     gojoAtivo = ativo
@@ -376,7 +311,7 @@ CriarBotao("Gojo 0.2 (Teleport Kill)", function(ativo)
             end
         end)
     else
-        PararGojo()
+        if gojoConn then gojoConn:Disconnect(); gojoConn = nil end
     end
 end)
 
@@ -387,9 +322,7 @@ local direcoes = {cima=false, baixo=false, esq=false, dir=false, subir=false, de
 local flyGuiRefs = {}
 
 local function DestruirControlesFly()
-    for _, gui in pairs(flyGuiRefs) do
-        pcall(function() gui:Destroy() end)
-    end
+    for _, gui in pairs(flyGuiRefs) do pcall(function() gui:Destroy() end) end
     flyGuiRefs = {}
 end
 
@@ -415,40 +348,26 @@ local function CriarControlesFly()
         b.BorderSizePixel = 0
         b.Parent = sg
         b.AutoButtonColor = false
-
-        local c = Instance.new("UICorner")
-        c.CornerRadius = UDim.new(0, 12)
-        c.Parent = b
-
-        local s = Instance.new("UIStroke")
-        s.Color = COR_NEON
-        s.Thickness = 2
-        s.Parent = b
+        local c = Instance.new("UICorner") c.CornerRadius = UDim.new(0, 12) c.Parent = b
+        local s = Instance.new("UIStroke") s.Color = COR_NEON s.Thickness = 2 s.Parent = b
 
         b.MouseButton1Down:Connect(function() direcoes[dirNome] = true; b.BackgroundColor3 = COR_NEON; b.TextColor3 = COR_FUNDO end)
         b.MouseButton1Up:Connect(function() direcoes[dirNome] = false; b.BackgroundColor3 = COR_FUNDO; b.TextColor3 = COR_NEON end)
         b.MouseLeave:Connect(function() direcoes[dirNome] = false; b.BackgroundColor3 = COR_FUNDO; b.TextColor3 = COR_NEON end)
     end
 
-    local baseX = 20
-    local baseY = screenH - 220
-
-    -- ESQUERDA: 4 setas (WASD)
-    CriarSeta(UDim2.new(0, baseX + 65, 0, baseY), "▲", "cima")
-    CriarSeta(UDim2.new(0, baseX, 0, baseY + 65), "◄", "esq")
-    CriarSeta(UDim2.new(0, baseX + 65, 0, baseY + 130), "▼", "baixo")
-    CriarSeta(UDim2.new(0, baseX + 130, 0, baseY + 65), "►", "dir")
-
-    -- DIREITA: subir/descer
+    CriarSeta(UDim2.new(0, 85, 0, screenH - 220), "▲", "cima")
+    CriarSeta(UDim2.new(0, 20, 0, screenH - 155), "◄", "esq")
+    CriarSeta(UDim2.new(0, 85, 0, screenH - 90), "▼", "baixo")
+    CriarSeta(UDim2.new(0, 150, 0, screenH - 155), "►", "dir")
     CriarSeta(UDim2.new(1, -80, 0, screenH - 220), "⬆", "subir")
-    CriarSeta(UDim2.new(1, -80, 0, screenH - 100), "⬇", "descer")
+    CriarSeta(UDim2.new(1, -80, 0, screenH - 90), "⬇", "descer")
 end
 
 CriarBotao("Fly (Mobile Controls)", function(ativo)
     flyAtivo = ativo
     if ativo then
         CriarControlesFly()
-
         flyConn = RunService.RenderStepped:Connect(function()
             if not flyAtivo then return end
             local char = LP.Character
@@ -456,26 +375,16 @@ CriarBotao("Fly (Mobile Controls)", function(ativo)
             local root = char:FindFirstChild("HumanoidRootPart")
             local hum = char:FindFirstChildOfClass("Humanoid")
             if not root or not hum then return end
-
             hum.PlatformStand = true
             local cam = workspace.CurrentCamera
             local dir = Vector3.new(0, 0, 0)
-
-            local forward = cam.CFrame.LookVector
-            local right = cam.CFrame.RightVector
-
-            if direcoes.cima then dir += forward end
-            if direcoes.baixo then dir -= forward end
-            if direcoes.esq then dir -= right end
-            if direcoes.dir then dir += right end
+            if direcoes.cima then dir += cam.CFrame.LookVector end
+            if direcoes.baixo then dir -= cam.CFrame.LookVector end
+            if direcoes.esq then dir -= cam.CFrame.RightVector end
+            if direcoes.dir then dir += cam.CFrame.RightVector end
             if direcoes.subir then dir += Vector3.new(0, 1, 0) end
             if direcoes.descer then dir -= Vector3.new(0, 1, 0) end
-
-            if dir.Magnitude > 0 then
-                root.Velocity = dir.Unit * 120
-            else
-                root.Velocity = Vector3.new(0, 0, 0)
-            end
+            root.Velocity = dir.Magnitude > 0 and (dir.Unit * 120) or Vector3.new(0, 0, 0)
         end)
     else
         if flyConn then flyConn:Disconnect(); flyConn = nil end
@@ -488,7 +397,8 @@ CriarBotao("Fly (Mobile Controls)", function(ativo)
         end
         for k, _ in pairs(direcoes) do direcoes[k] = false end
         DestruirControlesFly()
-    end-- ==================== BYPASS ====================
+    end
+end)-- ==================== BYPASS ====================
 local bypassAtivo = false
 local bypassRodando = false
 
@@ -503,9 +413,7 @@ local function ExecutarBypass()
     local sucesso = false
     pcall(function()
         local jogadores = Players:GetPlayers()
-        for i = #jogadores, 1, -1 do
-            if jogadores[i] == LP then table.remove(jogadores, i) end
-        end
+        for i = #jogadores, 1, -1 do if jogadores[i] == LP then table.remove(jogadores, i) end end
         if #jogadores > 0 then
             local alvo = jogadores[math.random(1, #jogadores)]
             if alvo and alvo.Character and alvo.Character:FindFirstChild("HumanoidRootPart") then
@@ -569,42 +477,25 @@ local focusAlvo = nil
 local focusOrb = nil
 local focusAngulo = 0
 
-local function CriarOrb()
-    local orb = Instance.new("Part")
-    orb.Shape = Enum.PartType.Ball
-    orb.Size = Vector3.new(2.5, 2.5, 2.5)
-    orb.Material = Enum.Material.Neon
-    orb.Color = COR_NEON
-    orb.CanCollide = false
-    orb.Anchored = true
-    orb.Name = "DinoFocusOrb"
-    orb.Parent = workspace
-
-    local light = Instance.new("PointLight")
-    light.Color = COR_NEON
-    light.Range = 12
-    light.Brightness = 3
-    light.Parent = orb
-
-    return orb
-end
-
 CriarBotao("Focus (Orbital)", function(ativo)
     focusAtivo = ativo
     if ativo then
-        focusOrb = CriarOrb()
-        focusAngulo = 0
+        focusOrb = Instance.new("Part")
+        focusOrb.Shape = Enum.PartType.Ball
+        focusOrb.Size = Vector3.new(2.5, 2.5, 2.5)
+        focusOrb.Material = Enum.Material.Neon
+        focusOrb.Color = COR_NEON
+        focusOrb.CanCollide = false
+        focusOrb.Anchored = true
+        focusOrb.Parent = workspace
+        local light = Instance.new("PointLight") light.Color = COR_NEON light.Range = 12 light.Brightness = 3 light.Parent = focusOrb
 
         focusConn = RunService.Heartbeat:Connect(function(dt)
             if not focusAtivo then return end
-
             if focusAlvo and focusAlvo.Character then
                 local hum = focusAlvo.Character:FindFirstChildOfClass("Humanoid")
-                if not hum or hum.Health <= 0 then
-                    focusAlvo = nil
-                end
+                if not hum or hum.Health <= 0 then focusAlvo = nil end
             end
-
             if not focusAlvo then
                 local minhaPos = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") and LP.Character.HumanoidRootPart.Position
                 if not minhaPos then return end
@@ -615,25 +506,16 @@ CriarBotao("Focus (Orbital)", function(ativo)
                         local hum = plr.Character:FindFirstChildOfClass("Humanoid")
                         if hrp and hum and hum.Health > 0 then
                             local d = (hrp.Position - minhaPos).Magnitude
-                            if d < dist then
-                                dist = d
-                                focusAlvo = plr
-                            end
+                            if d < dist then dist = d focusAlvo = plr end
                         end
                     end
                 end
             end
-
             if focusAlvo and focusAlvo.Character then
                 local hrp = focusAlvo.Character:FindFirstChild("HumanoidRootPart")
                 if hrp and focusOrb then
                     focusAngulo += dt * 6
-                    local offset = Vector3.new(
-                        math.cos(focusAngulo) * 4,
-                        2,
-                        math.sin(focusAngulo) * 4
-                    )
-                    focusOrb.CFrame = CFrame.new(hrp.Position + offset)
+                    focusOrb.CFrame = CFrame.new(hrp.Position + Vector3.new(math.cos(focusAngulo)*4, 2, math.sin(focusAngulo)*4))
                 end
             end
         end)
@@ -642,9 +524,4 @@ CriarBotao("Focus (Orbital)", function(ativo)
         if focusOrb then focusOrb:Destroy(); focusOrb = nil end
         focusAlvo = nil
     end
-end)
-
--- ==================== FINALIZAÇÃO ====================
-print("🦖 DINO HUB carregado com sucesso!")
-print("✅ Key: teste")
 end)
