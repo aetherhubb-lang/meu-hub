@@ -121,7 +121,7 @@ hubGui.Name = "DinoHub"
 hubGui.ResetOnSpawn = false
 hubGui.Parent = CoreGui
 
--- Frame Principal (Altura reduzida para 310)
+-- Frame Principal (Altura reduzida)
 local main = Instance.new("Frame")
 main.Size = UDim2.new(0, 320, 0, 310)
 main.Position = UDim2.new(0, 30, 0.5, -155)
@@ -283,7 +283,7 @@ lockBtn.MouseButton1Click:Connect(function()
         main.Draggable = true
         lockBtn.Text = "🔓"
     end
-end)-- ==================== GOJO KILL ALL (SERVER) ====================
+end)-- ==================== GOJO KILL ALL (SERVER) - RÁPIDO ====================
 local gojoAtivo = false
 local gojoConn = nil
 
@@ -309,7 +309,7 @@ CriarBotao("Gojo Kill All (Server)", function(ativo)
                                     end
                                 end
                             end)
-                            task.wait(0.15) -- Delay para teleportar pelo server todo
+                            task.wait(0.05) -- 🔥 Velocidade aumentada
                         end
                     end
                 end
@@ -480,7 +480,7 @@ local focusAtivo = false
 local focusConn = nil
 local focusAlvo = nil
 local focusAngulo = 0
-local focusRaio = 12
+local focusRaio = 5         -- 🔥 Distância reduzida (bem colado no inimigo)
 local focusVelocidade = 5
 
 local function EncontrarInimigoMaisProximoFocus()
@@ -518,7 +518,6 @@ CriarBotao("Focus Orbital (Player)", function(ativo)
             local hum = char:FindFirstChildOfClass("Humanoid")
             if not root or not hum then return end
 
-            -- Verifica se o alvo atual ainda está vivo
             if focusAlvo and focusAlvo.Character then
                 local humAlvo = focusAlvo.Character:FindFirstChildOfClass("Humanoid")
                 if not humAlvo or humAlvo.Health <= 0 then focusAlvo = nil end
@@ -526,7 +525,6 @@ CriarBotao("Focus Orbital (Player)", function(ativo)
                 focusAlvo = EncontrarInimigoMaisProximoFocus()
             end
 
-            -- Se não achou ninguém, para
             if not focusAlvo then
                 focusAtivo = false
                 if focusConn then focusConn:Disconnect(); focusConn = nil end
@@ -541,7 +539,6 @@ CriarBotao("Focus Orbital (Player)", function(ativo)
                 hum.PlatformStand = true
                 focusAngulo = focusAngulo + (dt * focusVelocidade)
                 
-                -- Seu personagem gira em volta do inimigo
                 local offset = Vector3.new(
                     math.cos(focusAngulo) * focusRaio,
                     5,
@@ -561,84 +558,6 @@ CriarBotao("Focus Orbital (Player)", function(ativo)
             if root then root.Velocity = Vector3.zero end
         end
         focusAlvo = nil
-    end
-end)-- ==================== FLY ORBIT (TRAVAR INIMIGO) ====================
-local flyOrbitAtivo = false
-local flyOrbitConn = nil
-local orbitAlvo = nil
-local orbitAngulo = 0
-local orbitRaio = 12
-local orbitVelocidade = 4
-
-local function EncontrarInimigoMaisProximo()
-    local minhaPos = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") and LP.Character.HumanoidRootPart.Position
-    if not minhaPos then return nil end
-    local maisProximo = nil
-    local distMin = math.huge
-    for _, plr in pairs(Players:GetPlayers()) do
-        if plr ~= LP and plr.Character then
-            local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
-            local hum = plr.Character:FindFirstChildOfClass("Humanoid")
-            if hrp and hum and hum.Health > 0 then
-                local dist = (hrp.Position - minhaPos).Magnitude
-                if dist < distMin then
-                    distMin = dist
-                    maisProximo = plr
-                end
-            end
-        end
-    end
-    return maisProximo
-end
-
-CriarBotao("Fly Orbit (Travar Inimigo)", function(ativo)
-    flyOrbitAtivo = ativo
-    if ativo then
-        orbitAngulo = 0
-        orbitAlvo = nil
-        flyOrbitConn = RunService.Heartbeat:Connect(function(dt)
-            if not flyOrbitAtivo then return end
-            local char = LP.Character
-            if not char then return end
-            local root = char:FindFirstChild("HumanoidRootPart")
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            if not root or not hum then return end
-
-            if orbitAlvo and orbitAlvo.Character then
-                local humAlvo = orbitAlvo.Character:FindFirstChildOfClass("Humanoid")
-                if not humAlvo or humAlvo.Health <= 0 then orbitAlvo = nil end
-            else
-                orbitAlvo = EncontrarInimigoMaisProximo()
-            end
-
-            if not orbitAlvo then
-                flyOrbitAtivo = false
-                if flyOrbitConn then flyOrbitConn:Disconnect(); flyOrbitConn = nil end
-                hum.PlatformStand = false
-                root.Velocity = Vector3.zero
-                print("🛑 Fly Orbit parou: Nenhum inimigo vivo.")
-                return
-            end
-
-            local hrpAlvo = orbitAlvo.Character:FindFirstChild("HumanoidRootPart")
-            if hrpAlvo then
-                hum.PlatformStand = true
-                orbitAngulo = orbitAngulo + (dt * orbitVelocidade)
-                local offset = Vector3.new(math.cos(orbitAngulo) * orbitRaio, 6, math.sin(orbitAngulo) * orbitRaio)
-                root.CFrame = CFrame.new(hrpAlvo.Position + offset, hrpAlvo.Position)
-                root.Velocity = Vector3.zero
-            end
-        end)
-    else
-        if flyOrbitConn then flyOrbitConn:Disconnect(); flyOrbitConn = nil end
-        local char = LP.Character
-        if char then
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            if hum then hum.PlatformStand = false end
-            local root = char:FindFirstChild("HumanoidRootPart")
-            if root then root.Velocity = Vector3.zero end
-        end
-        orbitAlvo = nil
     end
 end)
 
