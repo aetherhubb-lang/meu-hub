@@ -121,7 +121,7 @@ hubGui.Name = "DinoHub"
 hubGui.ResetOnSpawn = false
 hubGui.Parent = CoreGui
 
--- Frame Principal (Altura reduzida)
+-- Frame Principal
 local main = Instance.new("Frame")
 main.Size = UDim2.new(0, 320, 0, 310)
 main.Position = UDim2.new(0, 30, 0.5, -155)
@@ -399,28 +399,29 @@ CriarBotao("Fly (Mobile Controls)", function(ativo)
         DestruirControlesFly()
     end
 end)-- ==================== BYPASS ====================
-local bypassAtivo = false
-local bypassRodando = false
-
-local function AtualizarChar()
-    local char = LP.Character or LP.CharacterAdded:Wait()
-    return char, char:WaitForChild("HumanoidRootPart", 5), char:WaitForChild("Humanoid", 5)
-end
+local bypassActive = false
+local bypassConn = nil
 
 local function ExecutarBypass()
-    local char, root = AtualizarChar()
+    local char = LP.Character or LP.CharacterAdded:Wait()
+    local root = char:WaitForChild("HumanoidRootPart", 5)
     if not root then return false end
+
     local sucesso = false
     pcall(function()
         local jogadores = Players:GetPlayers()
-        for i = #jogadores, 1, -1 do if jogadores[i] == LP then table.remove(jogadores, i) end end
+        for i = #jogadores, 1, -1 do
+            if jogadores[i] == LP then table.remove(jogadores, i) end
+        end
         if #jogadores > 0 then
             local alvo = jogadores[math.random(1, #jogadores)]
-            if alvo and alvo.Character and alvo.Character:FindFirstChild("HumanoidRootPart") then
+            if alvo and alvo.Character
+               and alvo.Character:FindFirstChild("HumanoidRootPart") then
                 local posAlvo = alvo.Character.HumanoidRootPart.Position + Vector3.new(0, 3, 0)
                 root.CFrame = CFrame.new(posAlvo)
                 task.wait(0.5)
-                if root and root.Parent and (root.Position - posAlvo).Magnitude < 25 then
+                if root and root.Parent
+                   and (root.Position - posAlvo).Magnitude < 25 then
                     sucesso = true
                 end
             end
@@ -430,17 +431,20 @@ local function ExecutarBypass()
 end
 
 local function rotaDoVoid()
-    local char, root, hum = AtualizarChar()
-    if not root or not hum then return end
     pcall(function()
+        local char = LP.Character
+        local root = char and char:FindFirstChild("HumanoidRootPart")
+        local hum  = char and char:FindFirstChildOfClass("Humanoid")
+        if not root or not hum then return end
+
         hum.PlatformStand = true
         local bv = Instance.new("BodyVelocity")
-        bv.MaxForce = Vector3.new(9999999, 9999999, 9999999)
-        bv.Velocity = Vector3.new(0, 100, 0)
+        bv.MaxForce = Vector3.new(9e6, 9e6, 9e6)
+        bv.Velocity = Vector3.new(0, 150, 0)
         bv.Parent = root
-        task.wait(1.5)
-        bv.Velocity = Vector3.new(-700, 0, 0)
-        task.wait(2)
+        task.wait(1.3)
+        bv.Velocity = Vector3.new(-300, 0, 0)
+        task.wait(2.4)
         bv.Velocity = Vector3.zero
         hum.PlatformStand = false
         bv:Destroy()
@@ -448,111 +452,108 @@ local function rotaDoVoid()
 end
 
 CriarBotao("Auto Bypass", function(ativo)
-    bypassAtivo = ativo
-    if ativo and not bypassRodando then
-        bypassRodando = true
-        task.spawn(function()
-            local tentativas = 0
-            while bypassAtivo do
-                tentativas += 1
+    bypassActive = ativo
+    if ativo then
+        bypassConn = task.spawn(function()
+            while bypassActive do
                 local sucesso = ExecutarBypass()
                 if sucesso then
-                    bypassRodando = false
-                    print("✅ Bypass FUNCIONOU na tentativa #" .. tentativas)
+                    bypassActive = false
+                    print("✅ Bypass FUNCIONOU!")
                     break
                 else
                     rotaDoVoid()
                     task.wait(3)
                 end
             end
-            bypassRodando = false
+            bypassActive = false
         end)
+    else
+        if bypassConn then task.cancel(bypassConn); bypassConn = nil end
     end
 end)
 
--- ==================== FOCUS ORBITAL (PLAYER) ====================
-local focusAtivo = false
+-- ==================== FOCUS ====================
+local focusActive = false
 local focusConn = nil
-local focusAlvo = nil
-local focusAngulo = 0
-local focusRaio = 5
-local focusVelocidade = 5
+local focusTarget = nil
 
-local function EncontrarInimigoMaisProximoFocus()
-    local minhaPos = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") and LP.Character.HumanoidRootPart.Position
-    if not minhaPos then return nil end
-    local maisProximo = nil
-    local distMin = math.huge
-    for _, plr in pairs(Players:GetPlayers()) do
-        if plr ~= LP and plr.Character then
-            local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
-            local hum = plr.Character:FindFirstChildOfClass("Humanoid")
-            if hrp and hum and hum.Health > 0 then
-                local dist = (hrp.Position - minhaPos).Magnitude
-                if dist < distMin then
-                    distMin = dist
-                    maisProximo = plr
-                end
+local function findNearest()
+    local c = LP.Character
+    local r = c and c:FindFirstChild("HumanoidRootPart")
+    if not r then return nil end
+    local best, bestD = nil, math.huge
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LP and p.Character then
+            local tr = p.Character:FindFirstChild("HumanoidRootPart")
+            local hum = p.Character:FindFirstChildOfClass("Humanoid")
+            if tr and hum and hum.Health > 0 then
+                local d = (tr.Position - r.Position).Magnitude
+                if d < bestD then bestD = d; best = p end
             end
         end
     end
-    return maisProximo
+    return best
 end
 
-CriarBotao("Focus Orbital (Player)", function(ativo)
-    focusAtivo = ativo
-    if ativo then
-        focusAngulo = 0
-        focusAlvo = nil
+local function stopFocus()
+    if focusConn then focusConn:Disconnect(); focusConn = nil end
+    local char = LP.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if hum then hum.PlatformStand = false end
+    focusTarget = nil
+end
 
-        focusConn = RunService.Heartbeat:Connect(function(dt)
-            if not focusAtivo then return end
-            local char = LP.Character
-            if not char then return end
-            local root = char:FindFirstChild("HumanoidRootPart")
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            if not root or not hum then return end
+local function startFocus()
+    focusTarget = findNearest()
+    if not focusTarget then
+        focusActive = false
+        return
+    end
 
-            if focusAlvo and focusAlvo.Character then
-                local humAlvo = focusAlvo.Character:FindFirstChildOfClass("Humanoid")
-                if not humAlvo or humAlvo.Health <= 0 then focusAlvo = nil end
-            else
-                focusAlvo = EncontrarInimigoMaisProximoFocus()
-            end
+    local angle = 0
+    local radius = 6
+    local speed = 5
+    local heightOffset = 3
 
-            if not focusAlvo then
-                focusAtivo = false
-                if focusConn then focusConn:Disconnect(); focusConn = nil end
-                hum.PlatformStand = false
-                root.Velocity = Vector3.zero
-                print("🛑 Focus Orbital parou: Nenhum inimigo vivo.")
-                return
-            end
+    focusConn = RunService.Heartbeat:Connect(function(dt)
+        if not focusActive then return end
 
-            local hrpAlvo = focusAlvo.Character:FindFirstChild("HumanoidRootPart")
-            if hrpAlvo then
-                hum.PlatformStand = true
-                focusAngulo = focusAngulo + (dt * focusVelocidade)
-                
-                local offset = Vector3.new(
-                    math.cos(focusAngulo) * focusRaio,
-                    5,
-                    math.sin(focusAngulo) * focusRaio
-                )
-                root.CFrame = CFrame.new(hrpAlvo.Position + offset, hrpAlvo.Position)
-                root.Velocity = Vector3.zero
-            end
-        end)
-    else
-        if focusConn then focusConn:Disconnect(); focusConn = nil end
-        local char = LP.Character
-        if char then
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            if hum then hum.PlatformStand = false end
-            local root = char:FindFirstChild("HumanoidRootPart")
-            if root then root.Velocity = Vector3.zero end
+        if not focusTarget or not focusTarget.Character
+           or not focusTarget.Character.Parent then
+            focusTarget = findNearest()
+            if not focusTarget then return end
         end
-        focusAlvo = nil
+
+        local char = LP.Character
+        local root = char and char:FindFirstChild("HumanoidRootPart")
+        local hum  = char and char:FindFirstChildOfClass("Humanoid")
+        local tr   = focusTarget.Character:FindFirstChild("HumanoidRootPart")
+        local tHum = focusTarget.Character:FindFirstChildOfClass("Humanoid")
+
+        if not root or not hum or not tr then return end
+        if tHum and tHum.Health <= 0 then
+            focusTarget = findNearest()
+            return
+        end
+
+        hum.PlatformStand = true
+
+        angle += dt * speed
+        local offset = Vector3.new(math.cos(angle) * radius, heightOffset, math.sin(angle) * radius)
+        local newPos = tr.Position + offset
+
+        root.CFrame = CFrame.new(newPos, tr.Position)
+        root.Velocity = Vector3.zero
+    end)
+end
+
+CriarBotao("Focus (Player)", function(ativo)
+    focusActive = ativo
+    if ativo then
+        startFocus()
+    else
+        stopFocus()
     end
 end)
 
