@@ -121,10 +121,9 @@ hubGui.Name = "DinoHub"
 hubGui.ResetOnSpawn = false
 hubGui.Parent = CoreGui
 
--- Frame Principal
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 320, 0, 310)
-main.Position = UDim2.new(0, 30, 0.5, -155)
+main.Size = UDim2.new(0, 320, 0, 350)
+main.Position = UDim2.new(0, 30, 0.5, -175)
 main.BackgroundColor3 = COR_FUNDO
 main.BorderSizePixel = 0
 main.Active = true
@@ -140,7 +139,6 @@ mainStroke.Color = COR_NEON
 mainStroke.Thickness = 2
 mainStroke.Parent = main
 
--- Barra Superior
 local topBar = Instance.new("Frame")
 topBar.Size = UDim2.new(1, 0, 0, 42)
 topBar.BackgroundColor3 = COR_FUNDO_2
@@ -158,7 +156,6 @@ topFix.BackgroundColor3 = COR_FUNDO_2
 topFix.BorderSizePixel = 0
 topFix.Parent = topBar
 
--- Título
 local titulo = Instance.new("TextLabel")
 titulo.Size = UDim2.new(1, -100, 1, 0)
 titulo.Position = UDim2.new(0, 40, 0, 0)
@@ -170,7 +167,6 @@ titulo.TextSize = 18
 titulo.TextXAlignment = Enum.TextXAlignment.Left
 titulo.Parent = topBar
 
--- Botão Minimizar (-)
 local minBtn = Instance.new("TextButton")
 minBtn.Size = UDim2.new(0, 30, 0, 30)
 minBtn.Position = UDim2.new(0, 6, 0, 6)
@@ -183,7 +179,6 @@ minBtn.BorderSizePixel = 0
 minBtn.Parent = topBar
 local minCorner = Instance.new("UICorner") minCorner.CornerRadius = UDim.new(0, 8) minCorner.Parent = minBtn
 
--- Botão Cadeado
 local lockBtn = Instance.new("TextButton")
 lockBtn.Size = UDim2.new(0, 30, 0, 30)
 lockBtn.Position = UDim2.new(1, -36, 0, 6)
@@ -196,7 +191,6 @@ lockBtn.BorderSizePixel = 0
 lockBtn.Parent = topBar
 local lockCorner = Instance.new("UICorner") lockCorner.CornerRadius = UDim.new(0, 8) lockCorner.Parent = lockBtn
 
--- Container de botões
 local scroll = Instance.new("ScrollingFrame")
 scroll.Size = UDim2.new(1, -20, 1, -60)
 scroll.Position = UDim2.new(0, 10, 0, 50)
@@ -213,7 +207,6 @@ listLayout.Padding = UDim.new(0, 8)
 listLayout.SortOrder = Enum.SortOrder.LayoutOrder
 listLayout.Parent = scroll
 
--- ==================== FUNÇÃO CRIAR BOTÃO ====================
 local function CriarBotao(nome, callback)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, -8, 0, 40)
@@ -250,7 +243,6 @@ local function CriarBotao(nome, callback)
     return btn
 end
 
--- Minimizar
 local minTab = nil
 minBtn.MouseButton1Click:Connect(function()
     main.Visible = false
@@ -274,7 +266,6 @@ minBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
--- Cadeado
 lockBtn.MouseButton1Click:Connect(function()
     if main.Draggable then
         main.Draggable = false
@@ -554,6 +545,51 @@ CriarBotao("Focus (Player)", function(ativo)
         startFocus()
     else
         stopFocus()
+    end
+end)
+
+-- ==================== ESP ====================
+local espActive = false
+local espFolder = nil
+
+local function IniciarESP()
+    if not espFolder then
+        espFolder = Instance.new("Folder")
+        espFolder.Name = "DinoESP"
+        espFolder.Parent = CoreGui
+    end
+
+    task.spawn(function()
+        while espActive do
+            espFolder:ClearAllChildren()
+            for _, p in ipairs(Players:GetPlayers()) do
+                if p ~= LP and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    local h = Instance.new("Highlight")
+                    h.Adornee = p.Character
+                    h.FillColor = COR_NEON
+                    h.OutlineColor = Color3.fromRGB(255, 255, 255)
+                    h.FillTransparency = 0.5
+                    h.Parent = espFolder
+                end
+            end
+            task.wait(1)
+        end
+        if espFolder then espFolder:ClearAllChildren() end
+    end)
+end
+
+local function PararESP()
+    if espFolder then
+        espFolder:ClearAllChildren()
+    end
+end
+
+CriarBotao("👁️ ESP (Ver Players)", function(ativo)
+    espActive = ativo
+    if ativo then
+        IniciarESP()
+    else
+        PararESP()
     end
 end)
 
