@@ -122,8 +122,8 @@ hubGui.ResetOnSpawn = false
 hubGui.Parent = CoreGui
 
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 320, 0, 350)
-main.Position = UDim2.new(0, 30, 0.5, -175)
+main.Size = UDim2.new(0, 320, 0, 380)
+main.Position = UDim2.new(0, 30, 0.5, -190)
 main.BackgroundColor3 = COR_FUNDO
 main.BorderSizePixel = 0
 main.Active = true
@@ -139,6 +139,7 @@ mainStroke.Color = COR_NEON
 mainStroke.Thickness = 2
 mainStroke.Parent = main
 
+-- Barra Superior
 local topBar = Instance.new("Frame")
 topBar.Size = UDim2.new(1, 0, 0, 42)
 topBar.BackgroundColor3 = COR_FUNDO_2
@@ -156,6 +157,7 @@ topFix.BackgroundColor3 = COR_FUNDO_2
 topFix.BorderSizePixel = 0
 topFix.Parent = topBar
 
+-- Título
 local titulo = Instance.new("TextLabel")
 titulo.Size = UDim2.new(1, -100, 1, 0)
 titulo.Position = UDim2.new(0, 40, 0, 0)
@@ -167,6 +169,7 @@ titulo.TextSize = 18
 titulo.TextXAlignment = Enum.TextXAlignment.Left
 titulo.Parent = topBar
 
+-- Botão Minimizar (-)
 local minBtn = Instance.new("TextButton")
 minBtn.Size = UDim2.new(0, 30, 0, 30)
 minBtn.Position = UDim2.new(0, 6, 0, 6)
@@ -179,6 +182,7 @@ minBtn.BorderSizePixel = 0
 minBtn.Parent = topBar
 local minCorner = Instance.new("UICorner") minCorner.CornerRadius = UDim.new(0, 8) minCorner.Parent = minBtn
 
+-- Botão Cadeado
 local lockBtn = Instance.new("TextButton")
 lockBtn.Size = UDim2.new(0, 30, 0, 30)
 lockBtn.Position = UDim2.new(1, -36, 0, 6)
@@ -191,23 +195,84 @@ lockBtn.BorderSizePixel = 0
 lockBtn.Parent = topBar
 local lockCorner = Instance.new("UICorner") lockCorner.CornerRadius = UDim.new(0, 8) lockCorner.Parent = lockBtn
 
-local scroll = Instance.new("ScrollingFrame")
-scroll.Size = UDim2.new(1, -20, 1, -60)
-scroll.Position = UDim2.new(0, 10, 0, 50)
-scroll.BackgroundTransparency = 1
-scroll.BorderSizePixel = 0
-scroll.ScrollBarThickness = 4
-scroll.ScrollBarImageColor3 = COR_NEON
-scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
-scroll.Parent = main
+-- ==================== SISTEMA DE ABAS ====================
+local tabFrame = Instance.new("Frame")
+tabFrame.Size = UDim2.new(1, -20, 0, 32)
+tabFrame.Position = UDim2.new(0, 10, 0, 48)
+tabFrame.BackgroundTransparency = 1
+tabFrame.Parent = main
 
-local listLayout = Instance.new("UIListLayout")
-listLayout.Padding = UDim.new(0, 8)
-listLayout.SortOrder = Enum.SortOrder.LayoutOrder
-listLayout.Parent = scroll
+local mainTab = Instance.new("TextButton")
+mainTab.Size = UDim2.new(0.5, -4, 1, 0)
+mainTab.Position = UDim2.new(0, 0, 0, 0)
+mainTab.BackgroundColor3 = COR_NEON
+mainTab.Text = "MAIN"
+mainTab.TextColor3 = COR_FUNDO
+mainTab.Font = Enum.Font.GothamBold
+mainTab.TextSize = 14
+mainTab.BorderSizePixel = 0
+mainTab.AutoButtonColor = false
+mainTab.Parent = tabFrame
+local mtc = Instance.new("UICorner") mtc.CornerRadius = UDim.new(0, 8) mtc.Parent = mainTab
 
-local function CriarBotao(nome, callback)
+local extrasTab = Instance.new("TextButton")
+extrasTab.Size = UDim2.new(0.5, -4, 1, 0)
+extrasTab.Position = UDim2.new(0.5, 4, 0, 0)
+extrasTab.BackgroundColor3 = COR_FUNDO_2
+extrasTab.Text = "EXTRAS"
+extrasTab.TextColor3 = Color3.fromRGB(180, 180, 180)
+extrasTab.Font = Enum.Font.GothamBold
+extrasTab.TextSize = 14
+extrasTab.BorderSizePixel = 0
+extrasTab.AutoButtonColor = false
+extrasTab.Parent = tabFrame
+local etc = Instance.new("UICorner") etc.CornerRadius = UDim.new(0, 8) etc.Parent = extrasTab
+
+-- ==================== SCROLLS ====================
+local function CriarScroll(posY)
+    local s = Instance.new("ScrollingFrame")
+    s.Size = UDim2.new(1, -20, 1, -96)
+    s.Position = UDim2.new(0, 10, 0, posY)
+    s.BackgroundTransparency = 1
+    s.BorderSizePixel = 0
+    s.ScrollBarThickness = 4
+    s.ScrollBarImageColor3 = COR_NEON
+    s.CanvasSize = UDim2.new(0, 0, 0, 0)
+    s.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    s.Parent = main
+
+    local l = Instance.new("UIListLayout")
+    l.Padding = UDim.new(0, 8)
+    l.SortOrder = Enum.SortOrder.LayoutOrder
+    l.Parent = s
+    return s
+end
+
+local mainScroll = CriarScroll(88)
+local extrasScroll = CriarScroll(88)
+extrasScroll.Visible = false
+
+-- Lógica das Abas
+mainTab.MouseButton1Click:Connect(function()
+    mainScroll.Visible = true
+    extrasScroll.Visible = false
+    mainTab.BackgroundColor3 = COR_NEON
+    mainTab.TextColor3 = COR_FUNDO
+    extrasTab.BackgroundColor3 = COR_FUNDO_2
+    extrasTab.TextColor3 = Color3.fromRGB(180, 180, 180)
+end)
+
+extrasTab.MouseButton1Click:Connect(function()
+    mainScroll.Visible = false
+    extrasScroll.Visible = true
+    extrasTab.BackgroundColor3 = COR_NEON
+    extrasTab.TextColor3 = COR_FUNDO
+    mainTab.BackgroundColor3 = COR_FUNDO_2
+    mainTab.TextColor3 = Color3.fromRGB(180, 180, 180)
+end)
+
+-- ==================== FUNÇÃO CRIAR BOTÃO ====================
+local function CriarBotao(parent, nome, callback)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, -8, 0, 40)
     btn.BackgroundColor3 = COR_FUNDO_2
@@ -218,7 +283,7 @@ local function CriarBotao(nome, callback)
     btn.TextXAlignment = Enum.TextXAlignment.Left
     btn.BorderSizePixel = 0
     btn.AutoButtonColor = false
-    btn.Parent = scroll
+    btn.Parent = parent
 
     local c = Instance.new("UICorner") c.CornerRadius = UDim.new(0, 10) c.Parent = btn
     local s = Instance.new("UIStroke") s.Color = COR_NEON s.Thickness = 1 s.Transparency = 0.5 s.Parent = btn
@@ -243,6 +308,7 @@ local function CriarBotao(nome, callback)
     return btn
 end
 
+-- Minimizar
 local minTab = nil
 minBtn.MouseButton1Click:Connect(function()
     main.Visible = false
@@ -266,6 +332,7 @@ minBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
+-- Cadeado
 lockBtn.MouseButton1Click:Connect(function()
     if main.Draggable then
         main.Draggable = false
@@ -278,7 +345,7 @@ end)-- ==================== GOJO 0.2 ====================
 local gojoActive = false
 local gojoConn = nil
 
-CriarBotao("Gojo 0.2 (Teleport Kill)", function(ativo)
+CriarBotao(mainScroll, "Gojo 0.2 (Teleport Kill)", function(ativo)
     gojoActive = ativo
     if ativo then
         gojoConn = task.spawn(function()
@@ -355,7 +422,7 @@ local function CriarControlesFly()
     CriarSeta(UDim2.new(1, -80, 0, screenH - 90), "⬇", "descer")
 end
 
-CriarBotao("Fly (Mobile Controls)", function(ativo)
+CriarBotao(mainScroll, "Fly (Mobile Controls)", function(ativo)
     flyAtivo = ativo
     if ativo then
         CriarControlesFly()
@@ -406,13 +473,11 @@ local function ExecutarBypass()
         end
         if #jogadores > 0 then
             local alvo = jogadores[math.random(1, #jogadores)]
-            if alvo and alvo.Character
-               and alvo.Character:FindFirstChild("HumanoidRootPart") then
+            if alvo and alvo.Character and alvo.Character:FindFirstChild("HumanoidRootPart") then
                 local posAlvo = alvo.Character.HumanoidRootPart.Position + Vector3.new(0, 3, 0)
                 root.CFrame = CFrame.new(posAlvo)
                 task.wait(0.5)
-                if root and root.Parent
-                   and (root.Position - posAlvo).Magnitude < 25 then
+                if root and root.Parent and (root.Position - posAlvo).Magnitude < 25 then
                     sucesso = true
                 end
             end
@@ -427,7 +492,6 @@ local function rotaDoVoid()
         local root = char and char:FindFirstChild("HumanoidRootPart")
         local hum  = char and char:FindFirstChildOfClass("Humanoid")
         if not root or not hum then return end
-
         hum.PlatformStand = true
         local bv = Instance.new("BodyVelocity")
         bv.MaxForce = Vector3.new(9e6, 9e6, 9e6)
@@ -442,7 +506,7 @@ local function rotaDoVoid()
     end)
 end
 
-CriarBotao("Auto Bypass", function(ativo)
+CriarBotao(mainScroll, "Auto Bypass", function(ativo)
     bypassActive = ativo
     if ativo then
         bypassConn = task.spawn(function()
@@ -497,11 +561,7 @@ end
 
 local function startFocus()
     focusTarget = findNearest()
-    if not focusTarget then
-        focusActive = false
-        return
-    end
-
+    if not focusTarget then focusActive = false return end
     local angle = 0
     local radius = 6
     local speed = 5
@@ -509,43 +569,27 @@ local function startFocus()
 
     focusConn = RunService.Heartbeat:Connect(function(dt)
         if not focusActive then return end
-
-        if not focusTarget or not focusTarget.Character
-           or not focusTarget.Character.Parent then
-            focusTarget = findNearest()
-            if not focusTarget then return end
+        if not focusTarget or not focusTarget.Character or not focusTarget.Character.Parent then
+            focusTarget = findNearest() if not focusTarget then return end
         end
-
         local char = LP.Character
         local root = char and char:FindFirstChild("HumanoidRootPart")
         local hum  = char and char:FindFirstChildOfClass("Humanoid")
         local tr   = focusTarget.Character:FindFirstChild("HumanoidRootPart")
         local tHum = focusTarget.Character:FindFirstChildOfClass("Humanoid")
-
         if not root or not hum or not tr then return end
-        if tHum and tHum.Health <= 0 then
-            focusTarget = findNearest()
-            return
-        end
-
+        if tHum and tHum.Health <= 0 then focusTarget = findNearest() return end
         hum.PlatformStand = true
-
         angle += dt * speed
         local offset = Vector3.new(math.cos(angle) * radius, heightOffset, math.sin(angle) * radius)
-        local newPos = tr.Position + offset
-
-        root.CFrame = CFrame.new(newPos, tr.Position)
+        root.CFrame = CFrame.new(tr.Position + offset, tr.Position)
         root.Velocity = Vector3.zero
     end)
 end
 
-CriarBotao("Focus (Player)", function(ativo)
+CriarBotao(mainScroll, "Focus (Player)", function(ativo)
     focusActive = ativo
-    if ativo then
-        startFocus()
-    else
-        stopFocus()
-    end
+    if ativo then startFocus() else stopFocus() end
 end)
 
 -- ==================== ESP ====================
@@ -558,7 +602,6 @@ local function IniciarESP()
         espFolder.Name = "DinoESP"
         espFolder.Parent = CoreGui
     end
-
     task.spawn(function()
         while espActive do
             espFolder:ClearAllChildren()
@@ -578,18 +621,32 @@ local function IniciarESP()
     end)
 end
 
-local function PararESP()
-    if espFolder then
-        espFolder:ClearAllChildren()
-    end
-end
-
-CriarBotao("👁️ ESP (Ver Players)", function(ativo)
+CriarBotao(mainScroll, "👁️ ESP (Ver Players)", function(ativo)
     espActive = ativo
+    if ativo then IniciarESP() else if espFolder then espFolder:ClearAllChildren() end end
+end)
+
+-- ==================== AUTO KOKUSEN (ABA EXTRAS) ====================
+local kokusenActive = false
+local kokusenConn = nil
+
+CriarBotao(extrasScroll, "🖤 Auto Kokusen (Spam Tool)", function(ativo)
+    kokusenActive = ativo
     if ativo then
-        IniciarESP()
+        kokusenConn = task.spawn(function()
+            while kokusenActive do
+                local char = LP.Character
+                local tool = char and char:FindFirstChildOfClass("Tool")
+                if tool then
+                    pcall(function()
+                        tool:Activate() -- Ativa a ferramenta equipada em loop
+                    end)
+                end
+                task.wait(0.03) -- Velocidade do spam (0.03 = super rápido)
+            end
+        end)
     else
-        PararESP()
+        if kokusenConn then task.cancel(kokusenConn); kokusenConn = nil end
     end
 end)
 
