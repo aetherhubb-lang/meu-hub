@@ -283,36 +283,31 @@ lockBtn.MouseButton1Click:Connect(function()
         main.Draggable = true
         lockBtn.Text = "🔓"
     end
-end)-- ==================== GOJO KILL ALL (SERVER) - RÁPIDO ====================
-local gojoAtivo = false
+end)-- ==================== GOJO 0.2 ====================
+local gojoActive = false
 local gojoConn = nil
 
-CriarBotao("Gojo Kill All (Server)", function(ativo)
-    gojoAtivo = ativo
+CriarBotao("Gojo 0.2 (Teleport Kill)", function(ativo)
+    gojoActive = ativo
     if ativo then
         gojoConn = task.spawn(function()
-            while gojoAtivo do
-                local jogadores = Players:GetPlayers()
-                for _, plr in pairs(jogadores) do
-                    if not gojoAtivo then break end
-                    if plr ~= LP and plr.Character then
-                        local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
-                        local hum = plr.Character:FindFirstChildOfClass("Humanoid")
-                        if hrp and hum and hum.Health > 0 then
-                            pcall(function()
-                                local char = LP.Character
-                                if char then
-                                    local root = char:FindFirstChild("HumanoidRootPart")
-                                    if root then
-                                        root.CFrame = CFrame.new(hrp.Position + Vector3.new(0, 3, 0))
-                                        root.Velocity = Vector3.new(0,0,0)
-                                    end
-                                end
-                            end)
-                            task.wait(0.05) -- 🔥 Velocidade aumentada
+            while gojoActive do
+                local char = LP.Character
+                local root = char and char:FindFirstChild("HumanoidRootPart")
+                if root then
+                    for _, p in ipairs(Players:GetPlayers()) do
+                        if not gojoActive then break end
+                        if p ~= LP and p.Character then
+                            local tr  = p.Character:FindFirstChild("HumanoidRootPart")
+                            local hum = p.Character:FindFirstChildOfClass("Humanoid")
+                            if tr and hum and hum.Health > 0 then
+                                root.CFrame = tr.CFrame
+                                RunService.Heartbeat:Wait()
+                            end
                         end
                     end
                 end
+                RunService.Heartbeat:Wait()
             end
         end)
     else
@@ -480,7 +475,7 @@ local focusAtivo = false
 local focusConn = nil
 local focusAlvo = nil
 local focusAngulo = 0
-local focusRaio = 5         -- 🔥 Distância reduzida (bem colado no inimigo)
+local focusRaio = 5
 local focusVelocidade = 5
 
 local function EncontrarInimigoMaisProximoFocus()
